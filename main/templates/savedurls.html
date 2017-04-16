@@ -1,0 +1,54 @@
+
+{% if category == None %}
+{% else %}
+<script>
+$("#deleteCategory").click(function () {
+	console.log("delete category button clicked");
+	$(".modal-header > h4").html("Delete category");
+
+	$.get("{% url 'delete_category' category.id %}", function(data){
+		console.log("delete category form:" + data);
+		$('.modal-body').html(data);
+	});
+});
+</script>
+{% endif %}
+
+<div class="panel-group">
+	{% if category == None %}
+	{% else %}
+	<h1>
+		Category: {{ category.name }} <br>
+		{% if category.is_default %}
+		{% else %}
+		<small>
+			<a id="deleteCategory" href="#" data-toggle="modal" data-target="#myModal">
+				Delete category
+			</a>
+		</small>
+		{% endif %}
+	</h1>
+	{% endif %}
+	<h1><small>Number of items found: {{ saved_urls|length }}</small></h1>
+	{% for saved_url in saved_urls %}
+	<div class="panel panel-default" style="width: 29%; display: inline-block; margin: 2%;">
+		<div class="panel-heading">
+			<h4>{{ saved_url.url_title }}</h4>
+		</div>
+		<div class="panel-body" style="word-break: break-all;">
+			<a target="_blank" href={{ saved_url.url }} class="btn btn-primary">Visit site</a>
+			<h4>Notes:</h4>
+			<textarea readonly disabled rows="4" style="width: 100%; resize: none; margin-bottom: 2em;">{{ saved_url.notes }}</textarea>
+
+			<button class="btn btn-primary" data-toggle="modal" data-target="#myModal"
+				onclick="$.get(&quot;{% url 'delete_url' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
+				Delete url
+			</button>
+			<button class="btn btn-primary" data-toggle="modal" data-target="#myModal"
+				onclick="$.get(&quot;{% url 'edit_url' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
+				Edit url
+			</button>
+		</div>
+	</div>
+	{% endfor %}
+</div>

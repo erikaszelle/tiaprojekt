@@ -1,0 +1,42 @@
+body {
+    margin-top: 70px;
+}
+
+#overlay {
+	position: fixed;
+    display: none; /* none / block */
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+#dialog {
+    position: fixed;
+    display: block;
+    background-color: white;
+    min-height: 50px;
+    min-width: 50px;
+    /*height: 50%;*/
+    width: 60%;
+    top: 20%;
+    left: 20%;
+    padding: 3em;
+    border-radius: 1em;
+}
+
+.carousel-inner .item img {
+    position:relative;
+    top:15%;
+    transform: translateY(-15%);
+}
+
+@media only screen and (min-width : 1200px) {
+  .carousel-caption
+  {
+    top: 350px;
+  }
+}
+

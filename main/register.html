@@ -1,0 +1,43 @@
+
+{% load widget_tweaks %}
+
+<script>
+$("#form").submit(function(e){
+	$.post('register/', $("#form").serialize(), function(data){
+		console.log("Result of POST: " + data);
+		$('.modal-body').html(data);
+	});
+	return false;
+});
+</script>
+
+<form class="form-horizontal" method="post" action={{ request.get_full_path }} id="form">
+	{% csrf_token %}
+	<div class="form-group">
+		{{ form.email.errors }}
+		<label for={{ form.email.id_for_label }} class="control-label col-sm-2">Email: </label>
+		<div class="col-sm-10">
+			{% render_field form.email type="text" class="form-control" placeholder="Enter email" %}
+		</div>
+	</div>
+	<div class="form-group">
+		{{ form.password.errors }}
+		<label for={{ form.password.id_for_label }} class="control-label col-sm-2">Password:</label>
+		<div class="col-sm-10">
+			{% render_field form.password type="text" class="form-control" placeholder="Enter password" %}
+		</div>
+	</div>
+	<div class="form-group">
+		{{ form.confirm_password.errors }}
+		<label for={{ form.confirm_password.id_for_label }} class="control-label col-sm-2">Confirm password:</label>
+		<div class="col-sm-10">
+			{% render_field form.confirm_password type="text" class="form-control" placeholder="Enter password again" %}
+		</div>
+	</div>
+
+	<div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+			<input type="submit" class="btn btn-default" value="Register">
+		</div>
+	</div>
+</form>

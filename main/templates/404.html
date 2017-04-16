@@ -1,0 +1,32 @@
+
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Save me!</title>
+
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<!-- jQuery library -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<!-- Latest compiled JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<!-- jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+		<!-- aby to dobre fungovalo aj na mobilnych zariadeniach -->
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<script src={% static 'main.js' %}></script>
+
+		<link rel="stylesheet" type="text/css" href={% static 'style.css' %} />
+	</head>
+
+	<body>
+		<div class="container">
+			<h1 class="jumbotron">Page not found.</h1>
+		</div>
+	</body>
+</html>

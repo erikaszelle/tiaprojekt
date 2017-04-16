@@ -1,0 +1,21 @@
+
+<script>
+$('#form').submit( function(e) {
+	console.log("yes no submitted");
+	$.post("{{ request.get_full_path }}", $("#form").serialize(), function(data){
+		$('.modal-body').html(data);
+	});
+	return false;
+});
+
+$('#noBtn').click(function(){
+	$("#myModal .close").click();
+});
+</script>
+
+<div class="alert alert-danger">Do you really want to delete this url?</div>
+<form id="form">
+	{% csrf_token %}
+	<button type="submit" id="yesBtn" class="btn btn-default">Yes</button>
+	<button id="noBtn"  class="btn btn-default">No</button>
+</form>
