@@ -1,6 +1,15 @@
 $(document).ready(function () {
 	console.log("jQuery: READY");
 
+	$("#searchform").submit(function(e){
+		console.log("search submitted");
+		$.get("/search/", $("#searchform").serialize(), function(data){
+			console.log("Result of GET: " + data);
+			$('#pageBody').html(data);
+		});
+		return false;
+	});
+
 	$("#loginButton").click(function () {
 		console.log("login button clicked");
 		$(".modal-header > h4").html("Login");

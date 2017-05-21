@@ -11,6 +11,7 @@ $("#deleteCategory").click(function () {
 		$('.modal-body').html(data);
 	});
 });
+
 </script>
 {% endif %}
 
@@ -29,26 +30,66 @@ $("#deleteCategory").click(function () {
 		{% endif %}
 	</h1>
 	{% endif %}
+	{% if label != None %}
+	<h1>Label: {{ label.name }}</h1>
+	{% endif %}
 	<h1><small>Number of items found: {{ saved_urls|length }}</small></h1>
-	{% for saved_url in saved_urls %}
-	<div class="panel panel-default" style="width: 29%; display: inline-block; margin: 2%;">
-		<div class="panel-heading">
-			<h4>{{ saved_url.url_title }}</h4>
-		</div>
-		<div class="panel-body" style="word-break: break-all;">
-			<a target="_blank" href={{ saved_url.url }} class="btn btn-primary">Visit site</a>
-			<h4>Notes:</h4>
-			<textarea readonly disabled rows="4" style="width: 100%; resize: none; margin-bottom: 2em;">{{ saved_url.notes }}</textarea>
 
-			<button class="btn btn-primary" data-toggle="modal" data-target="#myModal"
-				onclick="$.get(&quot;{% url 'delete_url' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
-				Delete url
-			</button>
-			<button class="btn btn-primary" data-toggle="modal" data-target="#myModal"
-				onclick="$.get(&quot;{% url 'edit_url' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
-				Edit url
-			</button>
+	<div class="container-fluid">
+		<div class="row">
+			<ul class="bs-box clerfix">
+				{% for saved_url, labels in saved_urls %}
+				<li class="col-md-4 col-sm-12 col-xs-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4>{{ saved_url.url_title }}</h4>
+						</div>
+						<div class="panel-body" style="word-break: break-all;">
+							<a target="_blank" href={{ saved_url.url }} class="btn btn-primary">Visit site</a>
+							<h4>Notes:</h4>
+							<textarea readonly disabled rows="4">{{ saved_url.notes }}</textarea>
+
+							<div>
+								{% for lbl in labels %}
+								<div class="btn-group">
+									<button class="btn btn-default btn-xs"
+				 onclick="$.get(&quot;{% url 'search_label' lbl.id %}&quot;, function(data){$('#pageBody').html(data); }); return false;">
+										{{ lbl.name }}
+									</button>
+									<button title="Delete" style="font-size: 5px;" class="btn btn-primary btn-xs glyphicon glyphicon-remove" data-toggle="modal" data-target="#myModal"
+																																	  onclick="$.get(&quot;{% url 'delete_label' saved_url.id lbl.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
+									</button>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
+
+						<div class="panel-footer">
+							<div class="btn-group btn-group-justified" role="group">
+								<div class="btn-group">
+									<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal"
+																	onclick="$.get(&quot;{% url 'add_label' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
+										Add labels
+									</button>
+								</div>
+								<div class="btn-group">
+									<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal"
+																	onclick="$.get(&quot;{% url 'edit_url' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
+										Edit url
+									</button>
+								</div>
+								<div class="btn-group">
+									<button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal"
+																	onclick="$.get(&quot;{% url 'delete_url' saved_url.id %}&quot;, function(data){$('.modal-body').html(data); }); return false;">
+										Delete url
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</li>
+				{% endfor %}
+			</ul>
 		</div>
 	</div>
-	{% endfor %}
 </div>

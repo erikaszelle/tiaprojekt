@@ -9,5 +9,4 @@ admin.site.register(Label)
 admin.site.register(Citation)
 admin.site.register(User)
 admin.site.register(SavedUrl)
-admin.site.register(UrlLabel)
 

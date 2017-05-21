@@ -1,13 +1,24 @@
 from django.shortcuts import render, get_object_or_404
 
-from main.models import Category, SavedUrl, User, Url
-from .forms import LoginForm, RegisterForm, AddCategoryForm, AddUrlForm
+from main.models import Category, SavedUrl, User, Url, Label
+from .forms import LoginForm, RegisterForm, AddCategoryForm, AddUrlForm, AddLabelForm
 
 from django.contrib import auth
 from django.db.models import Count
 from django.db import connection, IntegrityError
+from django.http import Http404, HttpResponseRedirect
+from django.db.models import Q
+
+import hashlib
 
 # Create your views here.
+
+def auth(hashed_value):
+    users = User.objects.all()
+    for user in users:
+        if hashlib.sha224(user.email.encode()).hexdigest() == hashed_value:
+            return user
+    return None
 
 def index(request):
     saved_urls = []
@@ -17,10 +28,11 @@ def index(request):
     cursor = connection.cursor()
 
     if 'user_email' in request.session:
-        try:
-            current_user = User.objects.get(email = request.session['user_email'])
-        except User.DoesNotExist:
-            current_user = None
+        current_user = auth(request.session['user_email'])
+        #try:
+        #    current_user = User.objects.get(email = request.session['user_email'])
+        #except User.DoesNotExist:
+        #    current_user = None
 
         cursor.execute('''
         SELECT main_category.id AS id, main_category.name AS name, count(main_savedurl.url_id) AS count 
@@ -56,7 +68,7 @@ def login(request):
             except User.DoesNotExist:
                 return render(request, 'login.html', {'form': form, 'reason': 'Email or password not correct.'})
 
-            request.session['user_email'] = user_email
+            request.session['user_email'] = hashlib.sha224(user_email.encode()).hexdigest()
             return render(request, 'login_success.html', {'user': user})
         else:
             return render(request, 'login.html', {'form': form, 'error': form.errors})
@@ -94,44 +106,47 @@ def register(request):
         return render(request, 'register.html', {'form': RegisterForm})
 
 def view_category(request, id):
-    saved_urls = []
-    current_user = None
-    category = get_object_or_404(Category, id=id)
 
     if 'user_email' in request.session:
-        try:
-            current_user = User.objects.get(email = request.session['user_email'])
-        except User.DoesNotExist:
-            current_user = None
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
-        saved_urls = SavedUrl.objects.filter(user=current_user, category=id).exclude(url__isnull=True)
+    category = get_object_or_404(Category, id=id)
+
+    urls = SavedUrl.objects.filter(user=current_user, category=id).exclude(url__isnull=True)
+    saved_urls = [(url, Label.objects.filter(saved_url=url.id)) for url in urls]
 
     context = {'category': category, 'saved_urls' : saved_urls, 'user': current_user }
 
     return render(request, 'savedurls.html', context)
 
 def view_all_categories(request):
-    saved_urls = []
-    current_user = None
 
     if 'user_email' in request.session:
-        try:
-            current_user = User.objects.get(email = request.session['user_email'])
-        except User.DoesNotExist:
-            current_user = None
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
-        saved_urls = SavedUrl.objects.filter(user=current_user).exclude(url__isnull=True)
+    urls = SavedUrl.objects.filter(user=current_user).exclude(url__isnull=True)
+    saved_urls = [(url, Label.objects.filter(saved_url=url.id)) for url in urls]
 
     context = {'saved_urls' : saved_urls }
 
     return render(request, 'savedurls.html', context)
 
 def add_category(request):
-    user_email = None
-    if 'user_email' in request.session:
-        user_email = request.session['user_email']
 
-    current_user = get_object_or_404(User, email = user_email)
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
     if request.method == 'POST':
         form = AddCategoryForm(request.POST)
@@ -151,11 +166,13 @@ def add_category(request):
 
 
 def delete_category(request, id):
-    user_email = None
-    if 'user_email' in request.session:
-        user_email = request.session['user_email']
 
-    current_user = get_object_or_404(User, email = user_email)
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
     if request.method == 'POST':
         category = get_object_or_404(Category, id=id)
@@ -173,11 +190,13 @@ def delete_category(request, id):
         return render(request, 'delete_category.html')
 
 def add_url(request):
-    user_email = None
-    if 'user_email' in request.session:
-        user_email = request.session['user_email']
 
-    current_user = get_object_or_404(User, email = user_email)
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/login/")
 
     if request.method == 'POST':
         form = AddUrlForm(current_user.id, request.POST)
@@ -201,11 +220,13 @@ def add_url(request):
         return render(request, 'add_url.html', {'form': AddUrlForm(current_user.id)})
 
 def delete_url(request, id):
-    user_email = None
-    if 'user_email' in request.session:
-        user_email = request.session['user_email']
 
-    current_user = get_object_or_404(User, email = user_email)
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
     if request.method == "POST":
         savedurl = get_object_or_404(SavedUrl, id=id, user_id=current_user.id)
@@ -215,16 +236,18 @@ def delete_url(request, id):
         return render(request, 'delete_url.html')
 
 def edit_url(request, id):
-    user_email = None
-    if 'user_email' in request.session:
-        user_email = request.session['user_email']
 
-    current_user = get_object_or_404(User, email = user_email)
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
     if request.method == "POST":
         form = AddUrlForm(current_user.id, request.POST)
         if form.is_valid():
-            savedurl = get_object_or_404(SavedUrl, id=id)
+            savedurl = get_object_or_404(SavedUrl, id=id, user_id=current_user.id)
             (savedurl.url, created) = Url.objects.get_or_create(url = form.cleaned_data['url'])
             savedurl.category = get_object_or_404(Category, id=form.cleaned_data['category'])
             savedurl.url_title = form.cleaned_data['url_title']
@@ -240,11 +263,113 @@ def edit_url(request, id):
         savedurl = get_object_or_404(SavedUrl, id=id)
         url = get_object_or_404(Url, id=savedurl.url_id)
         category = get_object_or_404(Category, id=savedurl.category_id)
+        labels = Label.objects.filter(saved_url=url.id)
         form = AddUrlForm(current_user.id, 
                 {'url': url.url, 'category': category.id, 
                     'url_title': savedurl.url_title, 'notes': savedurl.notes})
-        return render(request, 'add_url.html', {'form': form})
+        return render(request, 'add_url.html', {'form': form, 'labels': labels})
+
+def add_label(request, id):
+
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
+
+    if request.method == 'POST':
+        form = AddLabelForm(request.POST)
+        if form.is_valid():
+            url = get_object_or_404(SavedUrl, id=id)
+            label_name = form.cleaned_data['label_name']
+            try:
+                (label, created) = Label.objects.get_or_create(name=label_name)
+                label.saved_url.add(url)
+                label.save()
+            except IntegrityError as e:
+                return render(request, 'add_label.html', {'form': form, 'reason': e})
+            return render(request, 'add_label_success.html', {'form': form})
+
+        return render(request, 'add_label.html', {'form': form, 'error': form.errors})
+    else:
+        return render(request, 'add_label.html', {'form': AddLabelForm})
+
+def search(request):
+
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
+
+    if request.method == "POST":
+        raise Http404
+
+    query = request.GET['q'].split()
+    if len(query) == 0:
+        return render(request, 'savedurls.html', {'saved_urls': []})
+
+    q = Q(url__url__icontains=query[0]) | Q(category__name__icontains=query[0]) | Q(url_title__icontains=query[0])
+    for elem in query:
+        q.add(Q(url__url__icontains=elem) | Q(category__name__icontains=elem) | Q(url_title__icontains=elem), q.connector)
+
+    urls = SavedUrl.objects.filter(q, user=current_user).exclude(url__isnull=True)
+    saved_urls = [(url, Label.objects.filter(saved_url=url.id)) for url in urls]
+
+    context = {'saved_urls' : saved_urls }
+
+    return render(request, 'savedurls.html', context)
+
+def search_label(request, id):
+
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
+
+    label = Label.objects.get(id=id)
+    d = {}
+    for url in label.saved_url.all():
+        try:
+            url = SavedUrl.objects.get(id=url.id, user=current_user)
+        except:
+            continue
+
+        labels = Label.objects.filter(saved_url=url.id)
+
+        if url.id not in d:
+            d.update({url.id : (url, labels)})
+        else:
+            d[url.id][1] += [label]
+
+    saved_urls = list(d.values())
+
+    context = {'saved_urls' : saved_urls , 'label': label}
+
+    return render(request, 'savedurls.html', context)
 
 
+def delete_label(request, url_id, label_id):
 
+    if 'user_email' in request.session:
+        current_user = auth(request.session['user_email'])
+        if not current_user:
+            raise Http404
+    else:
+        return HttpResponseRedirect("/")
 
+    if request.method == 'POST':
+        saved_url = get_object_or_404(SavedUrl, id=url_id)
+        label = get_object_or_404(Label, id=label_id)
+        try:
+            label.saved_url.remove(saved_url)
+            label.save()
+        except IntegrityError as e:
+            return render(request, 'delete_label.html', {'reason': e})
+        return render(request, 'delete_label_success.html')
+    else:
+        return render(request, 'delete_label.html')

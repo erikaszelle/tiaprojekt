@@ -40,3 +40,40 @@ body {
   }
 }
 
+.panel textarea {
+	 width: 100%;
+	 resize: none;
+	 margin-bottom: 2em;
+}
+
+ul.bs-box {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+	flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+ul.bs-box>li {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+	margin-bottom: 3em;
+}
+
+.panel {
+	position: relative;
+	width: 100%;
+}
+.panel .panel-body {
+	padding-bottom: 70px;
+}
+.panel .panel-footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}

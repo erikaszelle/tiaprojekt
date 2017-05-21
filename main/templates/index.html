@@ -14,15 +14,13 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 		<!-- Latest compiled JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<!-- jQuery -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 
 		<!-- aby to dobre fungovalo aj na mobilnych zariadeniach -->
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
 		<script src={% static 'main.js' %}></script>
 
-		<link rel="stylesheet" type="text/css" href={% static 'style.css' %} />
+		<link rel="stylesheet" type="text/css" href={% static 'style.css' %} media="screen" />
 	</head>
 
 	<body>
@@ -114,22 +112,35 @@
 			</div>
 			{% else %}
 			<div class="row">
-				<div class="col-md-3">
+				<div class="col-sm-12 col-xs-12 col-md-3">
 					<nav class="nav navbar">
 						<ul class="nav nav-pills nav-stacked">
 							<li>
-								<button id="addUrlButton" data-toggle="modal" data-target="#myModal" class="btn btn-default btn-sm btn-block">
-									<span class="glyphicon glyphicon-plus pull-left"></span> 
-									Add new site
-								</button>
+								<form method="get" action="{% url 'search' %}" id="searchform" class="navbar-form" role="search">
+									<div class="form-group">
+										<div class="col-md-10">
+											<input type="text" class="form-control" name="q" id="search_query" placeholder="Search..."/>
+										</div>
+										<div class="col-md-2">
+											<button type="submit" class="glyphicon glyphicon-search btn btn-default"></button>
+										</div>
+									</div>
+								</form>
 							</li>
 						</ul>
+
 						<h4>All Categories</h4>
 						<ul class="nav nav-pills nav-stacked">
 							<li>
 								<button class='btn btn-block'
 		  							onclick="$.get(&quot;{% url 'view_all_categories' %}&quot;, function(data){$('#pageBody').html(data); }); return false;">
 									Show all sites
+								</button>
+							</li>
+							<li>
+								<button id="addUrlButton" data-toggle="modal" data-target="#myModal" class="btn btn-default btn-sm btn-block">
+									<span class="glyphicon glyphicon-plus pull-left"></span> 
+									Add new site
 								</button>
 							</li>
 						</ul>
@@ -166,7 +177,7 @@
 						</ul>
 					</nav>
 				</div>
-				<div class="col-md-9" id="pageBody">
+				<div class="col-xs-12 col-sm-12 col-md-9" id="pageBody">
 					<!-- saved urls -->
 					<h1>Select a category you would like to view</h1>
 				</div>

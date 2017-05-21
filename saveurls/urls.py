@@ -29,6 +29,10 @@ urlpatterns = [
     url(r'^category/add/$', views.add_category, name='add_category'),
     url(r'^category/delete/(?P<id>[0-9]+)/$', views.delete_category, name='delete_category'),
     url(r'^url/add/$', views.add_url, name='add_url'),
-    url(r'^url/delete/(?P<id>[0-9]+)/$$', views.delete_url, name='delete_url'),
-    url(r'^url/edit/(?P<id>[0-9]+)/$$', views.edit_url, name='edit_url'),
+    url(r'^url/delete/(?P<id>[0-9]+)/$', views.delete_url, name='delete_url'),
+    url(r'^url/edit/(?P<id>[0-9]+)/$', views.edit_url, name='edit_url'),
+    url(r'^label/add/(?P<id>[0-9]+)/$', views.add_label, name='add_label'),
+    url(r'^search/$', views.search, name='search'),
+    url(r'^label/search/(?P<id>[0-9]+)/$', views.search_label, name='search_label'),
+    url(r'^label/delete/(?P<url_id>[0-9]+)/(?P<label_id>[0-9]+)/$', views.delete_label, name='delete_label'),
 ]

@@ -14,12 +14,6 @@ class Url(models.Model):
     def __str__(self):
         return str(self.url)
 
-class Label(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-
-    def __str__(self):
-        return str(self.name)
-
 class User(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
@@ -29,7 +23,7 @@ class User(models.Model):
     def __str__(self):
         return str(self.email) + " [" + str(self.name) + " " + str(self.surname) + "]"
 
-class SavedUrl(models.Model): # vazobna tabulka, este si treba rozmysliet...
+class SavedUrl(models.Model):
     user = models.ForeignKey(User)
     url = models.ForeignKey(Url, blank=True, null=True)
     category = models.ForeignKey(Category)
@@ -45,16 +39,17 @@ class SavedUrl(models.Model): # vazobna tabulka, este si treba rozmysliet...
     class Meta:
         unique_together = (("user", "url"),)
 
-class UrlLabel(models.Model):
-    saved_url = models.ForeignKey(SavedUrl)
-    label = models.ForeignKey(Label)
+class Label(models.Model):
+    saved_url = models.ManyToManyField(SavedUrl)
+    name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
-        return str(self.saved_url) + " Label: " + str(self.label)
+        return str(self.name)
 
+# asi tu nebude...
 class Citation(models.Model):
-    text = models.CharField(max_length=5000, unique=True)
     saved_url = models.ForeignKey(SavedUrl)
+    text = models.CharField(max_length=5000, unique=True)
 
     def __str__(self):
         return str(self.text[:50])

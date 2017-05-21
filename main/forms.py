@@ -31,7 +31,7 @@ class AddCategoryForm(forms.Form):
 
 class AddUrlForm(forms.Form):
     url = forms.URLField(required=True)
-    category = forms.ChoiceField(widget=forms.Select(), required=True, choices=((1, 'a'), (2, 'b'), (3, 'c')))
+    category = forms.ChoiceField(widget=forms.Select(), required=True)
 
     url_title = forms.CharField(min_length=3)
     notes = forms.CharField(widget=forms.Textarea(), required=False)
@@ -48,6 +48,8 @@ class AddUrlForm(forms.Form):
         cursor.close()
         self.fields['category'].choices = categories
 
+class AddLabelForm(forms.Form):
+    label_name = forms.CharField(required=True, min_length=3)
 
 
 
