@@ -78,17 +78,9 @@ function sendPost(){
 			}
 			else
 			{
-				var s2;
-				s1 = s1.substring(0, s1.indexOf("<button"));
-				s2 = xhr.responseText.substring(xhr.responseText.indexOf("</button>") + "</button>".length, xhr.responseText.length);
-
-				console.log("Received response: " + xhr.responseText);
-
-				console.log("We got: " + s1);
-				console.log("We got: " + s2);
-
-				document.getElementById("content1").innerHTML = s1;
-				document.getElementById("content3").innerHTML = s2;
+				document.getElementById("content1").innerHTML = "Site could not be added.";
+				document.getElementById("content2").innerHTML = "";
+				document.getElementById("content3").innerHTML = "";
 			}
 
 		}
